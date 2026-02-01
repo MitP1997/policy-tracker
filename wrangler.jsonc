@@ -1,0 +1,23 @@
+{
+  // Policy Tracker (local/dev). Phase 0: single Worker with both HTTP + Cron handlers.
+  "name": "policy-tracker-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-02-01",
+
+  "triggers": { "crons": ["0 0 * * *"] },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "policy-tracker-local",
+      "database_id": "6e7947f5-dd39-4aaa-b41b-e5054e81f7ca"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "policy-tracker-local"
+    }
+  ]
+}

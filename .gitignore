@@ -1,2 +1,7 @@
 # obsidian
 .obsidian/
+
+# deps/build
+node_modules/
+.wrangler/
+

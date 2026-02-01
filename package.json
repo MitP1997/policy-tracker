@@ -1,0 +1,17 @@
+{
+  "name": "policy-tracker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:cron": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260129.0",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.6.0"
+  }
+}
+

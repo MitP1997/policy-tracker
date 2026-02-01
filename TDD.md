@@ -2,7 +2,8 @@
 
 ### Context
 - **Source PRD**: `PRD.md` (V1 only; exclude future enhancements)
-- **Target runtime**: Cloudflare Workers (V8 isolates, stateless)
+- **App framework**: Next.js (App Router)
+- **Target runtime**: Next.js deployed on Cloudflare (Workers runtime; stateless)
 - **Database**: Cloudflare D1 (SQLite)
 - **File storage** (for V1 “Document Storage” + import uploads): Cloudflare R2
 
@@ -25,15 +26,17 @@
 
 ---
 
-## 2) Architecture (Workers + D1 + R2)
+## 2) Architecture (Next.js + D1 + R2 + Cron Worker)
 
 ### High-level components
-- **API Worker** (HTTP):
-  - Auth/session, multi-tenant authorization
-  - CRUD endpoints for clients, policies, documents, users
-  - Dashboard queries (expiring buckets)
-  - Import endpoints (batch ingestion + validation)
-- **Cron Worker** (scheduled trigger, daily):
+- **Next.js app** (UI + API):
+  - App Router pages for dashboard and CRUD workflows
+  - Route handlers / server actions for:
+    - Auth/session, multi-tenant authorization
+    - CRUD for clients, policies, documents, users
+    - Dashboard queries (expiring buckets)
+    - Import endpoints (batch ingestion + validation)
+- **Cron Worker** (scheduled trigger, daily; separate from Next.js):
   - Generate **in-app reminders** for each agency/user according to reminder rules
   - Optionally auto-mark policies as `expired` when past end date (see §6.3)
 - **D1 database**:
@@ -269,6 +272,9 @@ Two options; pick one in implementation (both satisfy PRD):
 
 ## 10) API Surface (V1)
 
+### Implementation note (Next.js)
+- All endpoints below are implemented as **Next.js Route Handlers** (and/or server actions) and should preserve the paths as documented.
+
 ### Auth
 - `POST /auth/request-otp` (email)
 - `POST /auth/verify-otp` → sets session cookie
@@ -385,18 +391,22 @@ Two options; pick one in implementation (both satisfy PRD):
 
 ## 15) Implementation Phases (dependency-driven)
 
-### Phase 0 — Cloudflare project bootstrap (foundation)
+### Phase 0 — Next.js + Cloudflare foundation (implemented)
 - **Dependencies**: none
+- **Status**: implemented
 - **Deliverables**
-  - Worker(s) created (single Worker with both HTTP + Cron triggers, or separate Workers if preferred)
-  - D1 database + binding configured
-  - R2 bucket + binding configured
+  - Next.js app scaffolded (App Router) with a placeholder UI shell
+  - Cloudflare deployment target wired up for the Next.js app (Workers runtime)
+  - D1 database + binding configured for app runtime
+  - R2 bucket + binding configured for app runtime
+  - Separate Cron Worker created for scheduled work (reminders/expiry materialization), with D1 binding
   - Environment separation (dev/stage/prod) with separate D1/R2 resources
 - **Ready when**
-  - “Hello world” HTTP route responds
+  - App loads locally and in a deployed environment
+  - “Health” route responds (via Next.js route handler)
   - A scheduled trigger runs and logs once (no DB writes yet)
 
-### Phase 1 — Database schema (V1) + migrations
+### Phase 1 — Database schema (V1) + migrations (shared by app + cron)
 - **Dependencies**: Phase 0
 - **Deliverables**
   - D1 schema implementing V1 tables:
@@ -405,75 +415,92 @@ Two options; pick one in implementation (both satisfy PRD):
     - `imports`, `import_rows`
     - `audit_log`
   - Critical indexes for dashboard, reminders, and imports
+  - A repeatable migration workflow suitable for CI and local dev
 - **Ready when**
   - Schema applies cleanly to a new D1 DB
   - Seed script can create a sample agency + owner user + a few policies for dashboard testing
 
-### Phase 2 — Request auth/session + tenant scoping middleware
+### Phase 2 — Auth/session + tenant scoping (Next.js middleware + API wrappers)
 - **Dependencies**: Phase 1
 - **Deliverables**
   - Session cookie issuance + verification
-  - Middleware that loads current user and enforces `agency_id` scoping and role checks
+  - A single shared auth/tenant layer used by:
+    - Route handlers (API)
+    - Server actions (mutations from forms)
+    - Server-rendered pages (loading current user/agency)
+  - Middleware that enforces authentication on protected routes and loads current user context
   - Basic request validation + consistent error shape (e.g., 401/403/422)
 - **Ready when**
   - Protected endpoints reject unauthenticated access
   - Owner vs staff permission checks are enforced centrally (not copy-pasted)
 
-### Phase 3 — Agency + user management (owner workflows)
+### Phase 3 — Agency + user management (owner workflows: UI + API)
 - **Dependencies**: Phase 2
 - **Deliverables**
-  - Owner-only endpoints: create/list/update users
+  - Owner-only API: create/list/update users
+  - Owner UI flows:
+    - User list
+    - Create/invite staff
+    - Enable/disable staff
   - Staff status enable/disable
   - Audit log entries for user management changes
 - **Ready when**
   - Owner can add a staff user and the staff can log in
 
-### Phase 4 — Client management (+ households if included)
+### Phase 4 — Client management (+ households if included) (UI + API)
 - **Dependencies**: Phase 2
 - **Deliverables**
-  - Client CRUD with tenant scoping
+  - Client CRUD with tenant scoping (API + server actions)
+  - Client pages (list/detail/create/edit)
   - Household CRUD/listing (if shipped in V1) and client association
   - Search/pagination for clients list
   - Audit log for create/update
 - **Ready when**
   - Users can create clients and retrieve them reliably at scale (paged lists)
 
-### Phase 5 — Policy management (core domain)
+### Phase 5 — Policy management (core domain) (UI + API)
 - **Dependencies**: Phase 4
 - **Deliverables**
   - Policy CRUD including assignment, notes, premium, insurer/type fields
   - Status update endpoint (active / renewal_in_progress / renewed / lost / expired)
   - Staff access limited to assigned policies; owner access across agency
   - Audit log for policy creates/updates/status changes
+  - Policy pages (list/detail/create/edit) with assignee selection (owner-only where relevant)
 - **Ready when**
   - Staff can only update assigned policies
   - Policy number uniqueness is enforced (when present) per agency
 
-### Phase 6 — Expiry dashboard (primary value surface)
+### Phase 6 — Expiry dashboard (primary value surface) (UI + API)
 - **Dependencies**: Phase 5
 - **Deliverables**
   - Dashboard endpoint implementing PRD buckets (0–7, 8–30, 31–60, expired)
   - Sorting by urgency (earliest expiry first)
   - Staff vs owner dashboard views
+  - Dashboard page that renders server-side for fast initial load and correct tenant scoping
 - **Ready when**
   - A seeded dataset returns correct bucket counts and ordering
   - Performance is acceptable using the `policies(agency_id, end_date, status)` index
 
-### Phase 7 — Document storage (R2 + D1 metadata)
+### Phase 7 — Document storage (R2 + D1 metadata) (UI + API)
 - **Dependencies**: Phase 2 (auth), Phase 4/5 (entities)
 - **Deliverables**
   - Upload URL (or streaming) endpoint and document metadata create endpoint
   - Document list/filter by client/policy
   - Download endpoint (signed URL or Worker-gated stream)
   - Access control: staff limited to assigned policies; owner has full agency access
+  - UI for upload/list/download on client/policy detail screens
 - **Ready when**
   - A document uploaded to R2 is retrievable via authorized download and blocked cross-tenant
 
-### Phase 8 — Reminders (rules + daily view + cron generation)
+### Phase 8 — Reminders (rules + daily view + cron generation) (UI + API + Cron)
 - **Dependencies**: Phase 5 (policies/assignees), Phase 6 (date logic reuse)
 - **Deliverables**
   - Reminder rules endpoints (get/set per agency)
   - “Today” reminders endpoint for users
+  - UI for:
+    - Viewing today’s reminders
+    - Marking done/dismissed
+    - Configuring reminder rules (owner-only)
   - Cron job:
     - Generates reminders idempotently from rules and policy expiry dates
     - (If chosen) materializes `expired` status daily (see §6.3)
@@ -481,7 +508,7 @@ Two options; pick one in implementation (both satisfy PRD):
   - Running cron twice does not duplicate reminders
   - A user sees expected reminders for policies matching rules
 
-### Phase 9 — Import (critical onboarding)
+### Phase 9 — Import (critical onboarding) (UI + API)
 - **Dependencies**: Phase 4 (clients), Phase 5 (policies), Phase 2 (auth)
 - **Deliverables**
   - Import session endpoints (`/imports`, chunked `/rows`, `/commit`)
@@ -490,6 +517,10 @@ Two options; pick one in implementation (both satisfy PRD):
   - Recommended UI contract:
     - Browser parses `.xlsx` and sends normalized rows + mapping
     - Server accepts only normalized rows (keeps Worker lean)
+  - Import UI:
+    - Upload/select file
+    - Column mapping
+    - Progress + per-row error review
 - **Ready when**
   - A realistic CSV/Excel dataset can be imported with clear per-row failures
   - Large imports succeed via chunking without request timeouts
