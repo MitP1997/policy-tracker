@@ -2,16 +2,27 @@
   "name": "policy-tracker",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "dev:cron": "wrangler dev --test-scheduled",
-    "deploy": "wrangler deploy"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "next": "15.5.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@cloudflare/workers-types": "^4.20260129.0",
-    "typescript": "^5.8.2",
-    "wrangler": "^4.6.0"
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "15.5.7",
+    "typescript": "^5.8.2"
   }
 }
-

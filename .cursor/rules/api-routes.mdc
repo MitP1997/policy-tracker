@@ -1,0 +1,14 @@
+---
+description: Next.js Route Handler (src/app/api) conventions
+globs: src/app/api/**/route.ts
+alwaysApply: false
+---
+
+# API route conventions
+
+- Use `export async function GET|POST|PUT|DELETE(...)` route handlers.
+- Validate inputs at the boundary; return 400 on client mistakes.
+- Return `Response.json(...)` for JSON responses.
+- Do not leak internal error details to clients; log server-side if needed.
+- Keep handlers thin; move logic into `src/lib/**` when it grows.
+

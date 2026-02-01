@@ -1,0 +1,20 @@
+---
+description: React + TypeScript patterns for components and hooks
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React + TypeScript patterns
+
+- Prefer **named exports** for components/utilities; keep default exports only for Next.js route files (e.g. `page.tsx`).
+- Components:
+  - Keep props typed (avoid `any`).
+  - Prefer composition over flags/booleans when UI diverges.
+  - Keep client components minimal; push data fetching to server components.
+- Data fetching:
+  - On the server, prefer `fetch()` in server components or server actions.
+  - In the browser, use a small hook (e.g. `useEffect` + state) unless we adopt a query library.
+- Error handling:
+  - Never swallow errors silently.
+  - Use clear error messages and return early.
+

@@ -1,0 +1,16 @@
+---
+description: Next.js project conventions (Policy Tracker)
+alwaysApply: true
+---
+
+# Policy Tracker — Next.js conventions
+
+- Use **Next.js App Router** under `src/app/` (no `pages/`).
+- Prefer **Server Components by default**; add `"use client"` only when needed (state, effects, browser APIs).
+- Keep routes predictable:
+  - UI: `src/app/**/page.tsx`
+  - Layouts: `src/app/**/layout.tsx`
+  - API: `src/app/api/**/route.ts`
+- Keep code small and explicit; avoid clever abstractions early.
+- Use `npm run lint` and `npm run typecheck` before shipping changes.
+

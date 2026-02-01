@@ -4,4 +4,17 @@
 # deps/build
 node_modules/
 .wrangler/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# env
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
