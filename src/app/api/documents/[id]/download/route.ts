@@ -50,8 +50,13 @@ export async function GET(
     return jsonError("Document file not found", "not_found", 404);
   }
 
+  /** Sanitize filename for Content-Disposition to prevent header injection (CR/LF/quote). */
+  function safeContentDispositionFilename(name: string): string {
+    return name.replace(/[\r\n"]/g, "").trim() || "download";
+  }
+
   const contentType = row.mime_type || "application/octet-stream";
-  const filename = row.file_name || "download";
+  const filename = safeContentDispositionFilename(row.file_name || "download");
   const disposition = `attachment; filename="${filename.replace(/"/g, '\\"')}"`;
 
   return new Response(object.body, {

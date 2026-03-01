@@ -1,3 +1,4 @@
+import "server-only";
 import * as jose from "jose";
 
 const ACCESS_TTL = "15m";

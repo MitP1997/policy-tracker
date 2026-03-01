@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Get D1 database from Cloudflare Workers context.
  * Same pattern as godizzy: use getCloudflareContext({ async: true }) so bindings

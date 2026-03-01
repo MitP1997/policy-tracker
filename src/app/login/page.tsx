@@ -3,10 +3,23 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+/** Allow only same-origin relative paths for redirect; prevents open redirect. */
+function safeRedirectPath(raw: string | null | undefined): string {
+  if (raw == null || typeof raw !== "string") return "/";
+  const path = raw.trim();
+  if (!path.startsWith("/") || path.startsWith("//")) return "/";
+  try {
+    new URL(path, "http://localhost");
+    return path;
+  } catch {
+    return "/";
+  }
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") ?? "/";
+  const from = safeRedirectPath(searchParams.get("from"));
 
   const [step, setStep] = useState<"number" | "code">("number");
   const [whatsappNumber, setWhatsappNumber] = useState("");

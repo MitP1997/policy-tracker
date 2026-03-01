@@ -1,3 +1,4 @@
+import "server-only";
 /**
  * Get R2 bucket from Cloudflare Workers context.
  * Same pattern as getDb(): use getCloudflareContext({ async: true }) so bindings

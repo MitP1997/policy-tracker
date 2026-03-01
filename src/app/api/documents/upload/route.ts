@@ -52,6 +52,15 @@ export async function POST(request: Request): Promise<Response> {
   if (!key.startsWith(`${result.agency_id}/`)) {
     return jsonError("Invalid storageKey for this agency", "validation", 400);
   }
+  if (key.includes("..")) {
+    return jsonError("Invalid storageKey", "validation", 400);
+  }
+  const parts = key.split("/");
+  const uuidV4 =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (parts.length !== 2 || !uuidV4.test(parts[1] ?? "")) {
+    return jsonError("Invalid storageKey format", "validation", 400);
+  }
 
   let bucket: R2Bucket;
   try {

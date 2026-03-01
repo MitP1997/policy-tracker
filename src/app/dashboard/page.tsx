@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
 import { getExpiryBuckets, type ExpiryBucketItem } from "@/lib/dashboard";
 import { LogoutButton } from "@/components/LogoutButton";
+import { QuickStatusSelect } from "@/components/QuickStatusSelect";
 
 function BucketSection({
   title,
@@ -23,8 +24,9 @@ function BucketSection({
             <li key={item.id}>
               <Link href={item.links.detail}>{item.clientFullName ?? "—"}</Link>
               {" · "}
-              {item.insurerName} · {item.policyNumber ?? "—"} · ends {item.endDate}{" "}
-              · {item.status}
+              {item.insurerName} · {item.policyNumber ?? "—"} · ends {item.endDate}
+              {" · "}
+              <QuickStatusSelect policyId={item.id} currentStatus={item.status} />
               {" · "}
               <Link href={item.links.edit}>Edit</Link>
             </li>
