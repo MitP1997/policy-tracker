@@ -3,7 +3,7 @@
   // Run with: npm run dev (builds OpenNext + wrangler dev) so D1/KV/R2 bindings are available.
   "name": "policy-tracker-local",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2026-02-01",
+  "compatibility_date": "2025-07-18",
   "triggers": {
     "cron": ["0 6 * * *"]
   },
