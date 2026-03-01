@@ -89,10 +89,10 @@
   - Works well in serverless (stateless session token)
   - OTP delivery is via WhatsApp (implementation uses WhatsApp Business API; specific vendor/provider can be decided during implementation)
 
-### Session token
-- Signed token (HMAC) stored in `Set-Cookie`, containing:
-  - `user_id`, `agency_id`, `role`, `exp`
-- Verify on every request; no server-side session store required.
+### Session / token model
+- **Access token**: short-lived signed token (e.g. JWT or HMAC) in cookie or `Authorization` header; payload: `user_id`, `agency_id`, `role`, `exp`. Verified on every protected request.
+- **Refresh token**: longer-lived, httpOnly secure cookie; used only to obtain new access tokens via `POST /auth/refresh`; rotate on use (recommended). No server-side session store required if tokens are self-contained and refresh is stateless (e.g. signed refresh token).
+- Expired access token → 401; client or middleware uses refresh token to get a new access token without re-entering OTP.
 
 ### Rate limiting
 - Apply rate limiting to OTP send/verify routes (Workers built-in rate limiting primitives; throttle by IP and WhatsApp number).
@@ -278,9 +278,10 @@ Two options; pick one in implementation (both satisfy PRD):
 - All endpoints below are implemented as **Next.js Route Handlers** (and/or server actions) and should preserve the paths as documented.
 
 ### Auth
-- `POST /auth/request-otp` (whatsapp_number)
-- `POST /auth/verify-otp` → sets session cookie
-- `POST /auth/logout`
+- `POST /auth/request-otp` (whatsapp_number) — send OTP via WhatsApp; rate limited
+- `POST /auth/verify-otp` (whatsapp_number, code) → issues access token + refresh token (cookies and/or response body as chosen)
+- `POST /auth/refresh` — accept refresh token (cookie); return new access token (and optionally rotate refresh token)
+- `POST /auth/logout` — clear cookies; invalidate refresh token if server-side revocation is used
 - `GET /me` (current user + agency + role)
 
 ### Agency & user management
@@ -422,19 +423,30 @@ Two options; pick one in implementation (both satisfy PRD):
   - Schema applies cleanly to a new D1 DB
   - Seed script can create a sample agency + owner user + a few policies for dashboard testing
 
-### Phase 2 — Auth/session + tenant scoping (Next.js middleware + API wrappers)
+### Phase 2 — Auth/session + token management + WhatsApp login + tenant scoping (Next.js middleware + API wrappers)
 - **Dependencies**: Phase 1
 - **Deliverables**
-  - Session cookie issuance + verification
-  - A single shared auth/tenant layer used by:
-    - Route handlers (API)
-    - Server actions (mutations from forms)
-    - Server-rendered pages (loading current user/agency)
-  - Middleware that enforces authentication on protected routes and loads current user context
-  - Basic request validation + consistent error shape (e.g., 401/403/422)
+  - **WhatsApp number–based login**
+    - `POST /auth/request-otp`: accept WhatsApp number (E.164), validate, send OTP via WhatsApp Business API (or configured provider), apply rate limiting by IP and number
+    - `POST /auth/verify-otp`: accept WhatsApp number + OTP code; on success, create/lookup user (and agency), issue tokens and set cookies
+    - User identity tied to `users.whatsapp_number`; new numbers create first-user/agency or link to existing agency per product rules
+  - **Access token and refresh token management**
+    - **Access token**: short-lived signed token (e.g. JWT or HMAC) containing `user_id`, `agency_id`, `role`, `exp`; used for API and server-side auth (cookie or `Authorization: Bearer` as chosen)
+    - **Refresh token**: longer-lived, stored in httpOnly secure cookie; used only to obtain new access tokens; rotation on use (optional but recommended)
+    - `POST /auth/refresh`: accept refresh token (from cookie); validate and issue new access token (and optionally new refresh token); enforce rate limiting
+    - Token verification on each request; clear contract for expired access token (401) and invalid/expired refresh (re-login)
+  - **Session / auth layer**
+    - A single shared auth/tenant layer used by: route handlers (API), server actions, server-rendered pages (current user/agency)
+    - Middleware that enforces authentication on protected routes, loads current user context, and refreshes access token when needed (e.g. using refresh cookie)
+  - **Logout**
+    - `POST /auth/logout`: clear session cookies and invalidate refresh token (if server-side revocation is used)
+  - **Basic request validation + consistent error shape** (e.g. 401/403/422)
 - **Ready when**
-  - Protected endpoints reject unauthenticated access
+  - User can log in with WhatsApp number (request OTP → verify OTP → receive tokens/cookies)
+  - Protected endpoints reject unauthenticated access and accept valid access token (or cookie)
+  - Expired access token leads to 401; client/ middleware can use refresh token to obtain new access token without re-entering OTP
   - Owner vs staff permission checks are enforced centrally (not copy-pasted)
+  - Rate limiting is applied to OTP and refresh endpoints
 
 ### Phase 3 — Agency + user management (owner workflows: UI + API)
 - **Dependencies**: Phase 2
