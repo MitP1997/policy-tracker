@@ -1,19 +1,17 @@
 /**
  * Get D1 database from Cloudflare Workers context.
- * When the app runs on Cloudflare Workers (e.g. via @opennextjs/cloudflare),
- * the DB binding is available via getCloudflareContext().env.DB.
- * If context is missing (e.g. local dev without wrangler), returns null so
- * callers can return 503.
+ * Same pattern as godizzy: use getCloudflareContext({ async: true }) so bindings
+ * are available when the app runs via wrangler dev (OpenNext build).
  */
-export function getDb(): D1Database | null {
-  try {
-    // Optional: only resolves when @opennextjs/cloudflare is installed and context is set
-    const mod = require("@opennextjs/cloudflare") as {
-      getCloudflareContext?: () => { env?: { DB?: D1Database } };
-    };
-    const ctx = mod.getCloudflareContext?.();
-    return ctx?.env?.DB ?? null;
-  } catch {
-    return null;
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+export async function getDb(): Promise<D1Database> {
+  const { env } = await getCloudflareContext({ async: true });
+  const DB = (env as unknown as { DB?: D1Database }).DB;
+  if (!DB) {
+    throw new Error(
+      "Missing D1 binding `DB`. Ensure wrangler.jsonc has a d1_databases binding named DB and run dev with `npm run dev` (OpenNext + wrangler dev)."
+    );
   }
+  return DB;
 }

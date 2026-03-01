@@ -4,6 +4,7 @@
 # deps/build
 node_modules/
 .wrangler/
+.open-next/
 .next/
 out/
 dist/

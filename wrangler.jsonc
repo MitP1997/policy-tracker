@@ -1,12 +1,15 @@
 {
-  // Policy Tracker (local/dev). Phase 0: single Worker with both HTTP + Cron handlers.
+  // Policy Tracker — Next.js app via OpenNext (same pattern as godizzy).
+  // Run with: npm run dev (builds OpenNext + wrangler dev) so D1/KV/R2 bindings are available.
   "name": "policy-tracker-local",
-  "main": "src/worker/index.ts",
+  "main": ".open-next/worker.js",
   "compatibility_date": "2026-02-01",
-  "triggers": {
-    "crons": [
-      "0 0 * * *"
-    ]
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
   },
   "d1_databases": [
     {

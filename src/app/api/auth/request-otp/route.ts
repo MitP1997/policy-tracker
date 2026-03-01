@@ -27,8 +27,10 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError("Invalid E.164 phone number", "validation", 400);
   }
 
-  const db = getDb();
-  if (!db) {
+  let db: Awaited<ReturnType<typeof getDb>>;
+  try {
+    db = await getDb();
+  } catch {
     return jsonError("DB not available", "unavailable", 503);
   }
 
