@@ -6,8 +6,8 @@ function json(data: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(data, null, 2), { ...init, headers });
 }
 
-export default {
-  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+const worker = {
+  async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
 
     if (req.method === "GET" && url.pathname === "/") {
@@ -29,7 +29,7 @@ export default {
     return json({ ok: false, error: "not_found" }, { status: 404 });
   },
 
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledEvent, env: Env): Promise<void> {
     // Phase 0 readiness check: cron runs and logs (no DB writes yet).
     console.log("scheduled trigger fired", {
       cron: event.cron,
@@ -41,4 +41,6 @@ export default {
     void env.BUCKET;
   }
 };
+
+export default worker;
 

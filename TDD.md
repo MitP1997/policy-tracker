@@ -84,9 +84,10 @@
 - Owner can “manage users”
 
 ### V1 approach
-- **Email-based login with one-time code (OTP)** and **httpOnly cookie session**.
+- **WhatsApp number-based login with one-time code (OTP)** and **httpOnly cookie session**.
   - Avoids password storage complexity in V1
   - Works well in serverless (stateless session token)
+  - OTP delivery is via WhatsApp (implementation uses WhatsApp Business API; specific vendor/provider can be decided during implementation)
 
 ### Session token
 - Signed token (HMAC) stored in `Set-Cookie`, containing:
@@ -94,7 +95,7 @@
 - Verify on every request; no server-side session store required.
 
 ### Rate limiting
-- Apply rate limiting to OTP send/verify routes (Workers built-in rate limiting primitives or lightweight per-IP throttling).
+- Apply rate limiting to OTP send/verify routes (Workers built-in rate limiting primitives; throttle by IP and WhatsApp number).
 
 ---
 
@@ -115,6 +116,7 @@ The schema proposal in `schema.md` is a good starting point; below is the **V1-t
 
 #### `users`
 - Belongs to one agency
+- `whatsapp_number` (TEXT, required; E.164 format recommended; unique per agency)
 - `role`: `owner` | `staff`
 - `status`: `active` | `disabled`
 
@@ -276,7 +278,7 @@ Two options; pick one in implementation (both satisfy PRD):
 - All endpoints below are implemented as **Next.js Route Handlers** (and/or server actions) and should preserve the paths as documented.
 
 ### Auth
-- `POST /auth/request-otp` (email)
+- `POST /auth/request-otp` (whatsapp_number)
 - `POST /auth/verify-otp` → sets session cookie
 - `POST /auth/logout`
 - `GET /me` (current user + agency + role)

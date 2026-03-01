@@ -15,8 +15,7 @@ const config = [
       "out/**",
       "dist/**",
       "coverage/**",
-      "next-env.d.ts",
-      "worker/**"
+      "next-env.d.ts"
     ]
   },
   ...compat.extends("next/core-web-vitals")

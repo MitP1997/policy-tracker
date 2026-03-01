@@ -88,6 +88,7 @@ This product focuses **only on policy tracking and renewals**.
 * An agency account represents one insurance business
 * Agency can have one or more users (owner, staff)
 * Owner has full visibility across all policies and staff activity
+* Users log in using **WhatsApp number + OTP** (no passwords in V1)
 
 ---
 
