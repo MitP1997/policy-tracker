@@ -1,4 +1,8 @@
 import type { Env } from "./env";
+import {
+  runReminderGeneration,
+  runMaterializedExpiry
+} from "../lib/reminders";
 
 function json(data: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers);
@@ -30,15 +34,19 @@ const worker = {
   },
 
   async scheduled(event: ScheduledEvent, env: Env): Promise<void> {
-    // Phase 0 readiness check: cron runs and logs (no DB writes yet).
     console.log("scheduled trigger fired", {
       cron: event.cron,
       scheduledTime: event.scheduledTime
     });
 
-    // Touch bindings so local misconfig shows up early.
-    void env.DB;
-    void env.BUCKET;
+    try {
+      const summary = await runReminderGeneration(env.DB);
+      console.log("reminder generation", summary);
+      await runMaterializedExpiry(env.DB);
+      console.log("materialized expiry complete");
+    } catch (err) {
+      console.error("cron reminder/expiry failed", err);
+    }
   }
 };
 

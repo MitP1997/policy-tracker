@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
 
 export default function HomePage() {
@@ -11,6 +12,24 @@ export default function HomePage() {
         Next.js is wired up. Start the dev server with <code>npm run dev</code>.
       </p>
       <ul>
+        <li>
+          <Link href="/dashboard">Dashboard</Link>
+        </li>
+        <li>
+          <Link href="/clients">Clients</Link>
+        </li>
+        <li>
+          <Link href="/policies">Policies</Link>
+        </li>
+        <li>
+          <Link href="/import">Import</Link>
+        </li>
+        <li>
+          <Link href="/settings/users">Team</Link>
+        </li>
+        <li>
+          <Link href="/settings/households">Households</Link>
+        </li>
         <li>
           App Router lives in <code>src/app</code>
         </li>

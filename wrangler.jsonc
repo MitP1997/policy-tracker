@@ -4,6 +4,9 @@
   "name": "policy-tracker-local",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-02-01",
+  "triggers": {
+    "cron": ["0 6 * * *"]
+  },
   "compatibility_flags": [
     "nodejs_compat"
   ],
