@@ -423,7 +423,7 @@ Two options; pick one in implementation (both satisfy PRD):
   - Schema applies cleanly to a new D1 DB
   - Seed script can create a sample agency + owner user + a few policies for dashboard testing
 
-### Phase 2 — Auth/session + token management + WhatsApp login + tenant scoping (Next.js middleware + API wrappers)
+### Phase 2 — Auth/session + token management + WhatsApp login + tenant scoping (UI + API + Next.js middleware)
 - **Dependencies**: Phase 1
 - **Deliverables**
   - **WhatsApp number–based login**
@@ -441,8 +441,15 @@ Two options; pick one in implementation (both satisfy PRD):
   - **Logout**
     - `POST /auth/logout`: clear session cookies and invalidate refresh token (if server-side revocation is used)
   - **Basic request validation + consistent error shape** (e.g. 401/403/422)
+  - **Login UI**
+    - Login page (unauthenticated users hitting protected routes are redirected here)
+    - Step 1: WhatsApp number input (E.164), submit triggers `POST /auth/request-otp`; show rate-limit and validation errors
+    - Step 2: OTP code input, submit triggers `POST /auth/verify-otp`; on success, set cookies and redirect to app (e.g. dashboard or home)
+    - Client-side handling of 401 (e.g. trigger refresh or redirect to login when refresh fails)
+    - Logout control (link/button) that calls `POST /auth/logout` and redirects to login
 - **Ready when**
-  - User can log in with WhatsApp number (request OTP → verify OTP → receive tokens/cookies)
+  - User can complete login via the UI (enter number → request OTP → enter code → verify → redirect with session)
+  - Protected routes redirect unauthenticated users to the login page
   - Protected endpoints reject unauthenticated access and accept valid access token (or cookie)
   - Expired access token leads to 401; client/ middleware can use refresh token to obtain new access token without re-entering OTP
   - Owner vs staff permission checks are enforced centrally (not copy-pasted)
