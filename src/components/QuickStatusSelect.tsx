@@ -50,7 +50,7 @@ export function QuickStatusSelect({ policyId, currentStatus }: Props) {
       onChange={handleChange}
       disabled={loading}
       aria-label="Renewal status"
-      style={{ marginLeft: "0.5rem", padding: "0.2rem 0.25rem" }}
+      className="ml-2 px-2 py-1.5 rounded border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-60"
     >
       {POLICY_STATUSES.map((s) => (
         <option key={s} value={s}>

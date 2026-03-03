@@ -6,7 +6,7 @@
     "dev": "node scripts/dev-wrangler.mjs",
     "dev:next": "next dev",
     "opennext:build": "next build && opennextjs-cloudflare build --skipNextBuild",
-    "build": "npm run opennext:build",
+    "build": "pnpm run opennext:build",
     "build:next": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -28,6 +28,9 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
     "@cloudflare/workers-types": "^4.20260129.0",
     "wrangler": "^4.69.0",
     "@eslint/eslintrc": "^3.3.1",

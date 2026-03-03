@@ -1,30 +1,22 @@
-/* Minimal baseline styling — feel free to replace with Tailwind later. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   color-scheme: light dark;
 }
 
-html,
-body {
-  height: 100%;
-}
+@layer base {
+  html,
+  body {
+    @apply h-full antialiased;
+  }
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-    "Apple Color Emoji", "Segoe UI Emoji";
-  line-height: 1.5;
-}
+  body {
+    @apply m-0 font-sans leading-normal text-gray-900 bg-white;
+  }
 
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 48px 20px;
+  code {
+    @apply font-mono text-[0.95em];
+  }
 }
-
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-    monospace;
-  font-size: 0.95em;
-}
-

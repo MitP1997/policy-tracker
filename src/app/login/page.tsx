@@ -35,7 +35,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/request-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ whatsapp_number: whatsappNumber })
+        body: JSON.stringify({ whatsapp_number: whatsappNumber }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -56,7 +56,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ whatsapp_number: whatsappNumber, code })
+        body: JSON.stringify({ whatsapp_number: whatsappNumber, code }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -71,70 +71,99 @@ function LoginForm() {
   }
 
   return (
-    <main style={{ maxWidth: 400, margin: "2rem auto", padding: "0 1rem" }}>
-      <h1>Login</h1>
-      <p>Enter your WhatsApp number to receive a one-time code.</p>
-
-      {error && (
-        <p role="alert" style={{ color: "var(--color-error, #c00)" }}>
-          {error}
+    <main className="max-w-md mx-auto px-4 py-8">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-card">
+        <h1 className="text-xl font-semibold text-primary mb-1">Graazo</h1>
+        <p className="text-gray-600 text-sm mb-6">
+          Enter your WhatsApp number to receive a one-time code.
         </p>
-      )}
 
-      {step === "number" && (
-        <form onSubmit={handleRequestOtp}>
-          <label htmlFor="phone">WhatsApp number (E.164)</label>
-          <input
-            id="phone"
-            type="tel"
-            value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
-            placeholder="+919876543210"
-            required
-            autoComplete="tel"
-            style={{ display: "block", width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Sending…" : "Send OTP"}
-          </button>
-        </form>
-      )}
-
-      {step === "code" && (
-        <form onSubmit={handleVerifyOtp}>
-          <p>Code sent to {whatsappNumber}. Check server logs if testing locally.</p>
-          <label htmlFor="code">Verification code</label>
-          <input
-            id="code"
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-            placeholder="000000"
-            required
-            autoComplete="one-time-code"
-            style={{ display: "block", width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Verifying…" : "Verify"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setStep("number")}
-            style={{ marginLeft: "0.5rem" }}
+        {error && (
+          <p
+            role="alert"
+            className="mb-4 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg"
           >
-            Change number
-          </button>
-        </form>
-      )}
+            {error}
+          </p>
+        )}
+
+        {step === "number" && (
+          <form onSubmit={handleRequestOtp} className="space-y-4">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              WhatsApp number (E.164)
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              value={whatsappNumber}
+              onChange={(e) => setWhatsappNumber(e.target.value)}
+              placeholder="+919876543210"
+              required
+              autoComplete="tel"
+              className="block w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full min-h-[44px] px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-light disabled:opacity-60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              {loading ? "Sending…" : "Send OTP"}
+            </button>
+          </form>
+        )}
+
+        {step === "code" && (
+          <form onSubmit={handleVerifyOtp} className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Code sent to {whatsappNumber}. Check server logs if testing locally.
+            </p>
+            <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+              Verification code
+            </label>
+            <input
+              id="code"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              placeholder="000000"
+              required
+              autoComplete="one-time-code"
+              className="block w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="submit"
+                disabled={loading}
+                className="min-h-[44px] px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-light disabled:opacity-60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              >
+                {loading ? "Verifying…" : "Verify"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("number")}
+                className="min-h-[44px] px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              >
+                Change number
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </main>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main style={{ maxWidth: 400, margin: "2rem auto", padding: "0 1rem" }}><p>Loading…</p></main>}>
+    <Suspense
+      fallback={
+        <main className="max-w-md mx-auto px-4 py-8">
+          <p className="text-gray-500">Loading…</p>
+        </main>
+      }
+    >
       <LoginForm />
     </Suspense>
   );
