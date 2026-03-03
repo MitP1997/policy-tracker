@@ -11,6 +11,7 @@ type ClientRow = {
   agency_id: string;
   full_name: string;
   phone: string | null;
+  calling_number: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
@@ -26,6 +27,7 @@ function toClient(r: ClientRow) {
     agencyId: r.agency_id,
     fullName: r.full_name,
     phone: r.phone,
+    callingNumber: r.calling_number,
     email: r.email,
     address: r.address,
     notes: r.notes,
@@ -64,25 +66,25 @@ export async function GET(request: Request): Promise<Response> {
     countStmt = db
       .prepare(
         `SELECT COUNT(*) as total FROM clients
-         WHERE agency_id = ? AND (full_name LIKE ? OR phone LIKE ? OR email LIKE ?)`
+         WHERE agency_id = ? AND (full_name LIKE ? OR phone LIKE ? OR calling_number LIKE ? OR email LIKE ?)`
       )
-      .bind(result.agency_id, searchPattern, searchPattern, searchPattern);
+      .bind(result.agency_id, searchPattern, searchPattern, searchPattern, searchPattern);
     listStmt = db
       .prepare(
-        `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+        `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
          FROM clients
-         WHERE agency_id = ? AND (full_name LIKE ? OR phone LIKE ? OR email LIKE ?)
+         WHERE agency_id = ? AND (full_name LIKE ? OR phone LIKE ? OR calling_number LIKE ? OR email LIKE ?)
          ORDER BY full_name ASC
          LIMIT ? OFFSET ?`
       )
-      .bind(result.agency_id, searchPattern, searchPattern, searchPattern, limit, offset);
+      .bind(result.agency_id, searchPattern, searchPattern, searchPattern, searchPattern, limit, offset);
   } else {
     countStmt = db
       .prepare("SELECT COUNT(*) as total FROM clients WHERE agency_id = ?")
       .bind(result.agency_id);
     listStmt = db
       .prepare(
-        `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+        `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
          FROM clients
          WHERE agency_id = ?
          ORDER BY full_name ASC
@@ -109,6 +111,7 @@ export async function POST(request: Request): Promise<Response> {
   let body: {
     fullName?: string;
     phone?: string;
+    callingNumber?: string | null;
     email?: string;
     address?: string;
     notes?: string;
@@ -126,6 +129,12 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const phone = typeof body.phone === "string" ? body.phone.trim() || null : null;
+  const callingNumber =
+    body.callingNumber === undefined
+      ? phone
+      : typeof body.callingNumber === "string"
+        ? body.callingNumber.trim() || null
+        : null;
   const email = typeof body.email === "string" ? body.email.trim() || null : null;
   const address = typeof body.address === "string" ? body.address.trim() || null : null;
   const notes = typeof body.notes === "string" ? body.notes.trim() || null : null;
@@ -156,14 +165,15 @@ export async function POST(request: Request): Promise<Response> {
   const id = crypto.randomUUID();
   await db
     .prepare(
-      `INSERT INTO clients (id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
+      `INSERT INTO clients (id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
     )
     .bind(
       id,
       result.agency_id,
       fullName,
       phone,
+      callingNumber,
       email,
       address,
       notes,
@@ -183,7 +193,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const row = await db
     .prepare(
-      `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+      `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
        FROM clients WHERE id = ?`
     )
     .bind(id)

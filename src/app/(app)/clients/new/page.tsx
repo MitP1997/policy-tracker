@@ -17,6 +17,8 @@ export default function NewClientPage() {
   const [loadingHouseholds, setLoadingHouseholds] = useState(true);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [callingNumber, setCallingNumber] = useState("");
+  const [callingSameAsWhatsApp, setCallingSameAsWhatsApp] = useState(true);
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -53,6 +55,7 @@ export default function NewClientPage() {
       const body: {
         fullName: string;
         phone?: string;
+        callingNumber?: string | null;
         email?: string;
         address?: string;
         notes?: string;
@@ -61,6 +64,9 @@ export default function NewClientPage() {
         fullName: fullName.trim()
       };
       if (phone.trim()) body.phone = phone.trim();
+      body.callingNumber = callingSameAsWhatsApp
+        ? (phone.trim() || null)
+        : (callingNumber.trim() || null);
       if (email.trim()) body.email = email.trim();
       if (address.trim()) body.address = address.trim();
       if (notes.trim()) body.notes = notes.trim();
@@ -117,7 +123,7 @@ export default function NewClientPage() {
           />
         </div>
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
           <input
             id="phone"
             type="tel"
@@ -125,6 +131,34 @@ export default function NewClientPage() {
             onChange={(e) => setPhone(e.target.value)}
             className={fieldClass}
           />
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              id="callingSameAsWhatsApp"
+              type="checkbox"
+              checked={callingSameAsWhatsApp}
+              onChange={(e) => setCallingSameAsWhatsApp(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="callingSameAsWhatsApp" className="text-sm font-medium text-gray-700">
+              Same as WhatsApp number
+            </label>
+          </div>
+          {!callingSameAsWhatsApp && (
+            <div>
+              <label htmlFor="callingNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                Calling number
+              </label>
+              <input
+                id="callingNumber"
+                type="tel"
+                value={callingNumber}
+                onChange={(e) => setCallingNumber(e.target.value)}
+                className={fieldClass}
+              />
+            </div>
+          )}
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>

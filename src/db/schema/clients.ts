@@ -15,6 +15,7 @@ export const clients = sqliteTable(
 
     fullName: text("full_name").notNull(),
     phone: text("phone"),
+    callingNumber: text("calling_number"),
     email: text("email"),
     address: text("address"),
     notes: text("notes"),

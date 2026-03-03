@@ -8,6 +8,13 @@
       "when": 1772377132053,
       "tag": "0000_white_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1772542790404,
+      "tag": "0001_tired_sleeper",
+      "breakpoints": true
     }
   ]
 }

@@ -211,10 +211,10 @@ export async function POST(
         clientId = crypto.randomUUID();
         await db
           .prepare(
-            `INSERT INTO clients (id, agency_id, full_name, phone, email, created_by, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
+            `INSERT INTO clients (id, agency_id, full_name, phone, calling_number, email, created_by, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
           )
-          .bind(clientId, result.agency_id, fullName, phone, email, result.user_id)
+          .bind(clientId, result.agency_id, fullName, phone, phone, email, result.user_id)
           .run();
         await writeAuditLog(db, {
           agencyId: result.agency_id,
@@ -229,10 +229,10 @@ export async function POST(
       clientId = crypto.randomUUID();
       await db
         .prepare(
-          `INSERT INTO clients (id, agency_id, full_name, phone, email, created_by, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
+          `INSERT INTO clients (id, agency_id, full_name, phone, calling_number, email, created_by, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
         )
-        .bind(clientId, result.agency_id, fullName, null, email, result.user_id)
+        .bind(clientId, result.agency_id, fullName, null, null, email, result.user_id)
         .run();
       await writeAuditLog(db, {
         agencyId: result.agency_id,

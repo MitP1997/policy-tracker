@@ -9,6 +9,7 @@ type Client = {
   agencyId: string;
   fullName: string;
   phone: string | null;
+  callingNumber: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
@@ -210,8 +211,10 @@ export default function ClientDetailPage() {
       </p>
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-        <dt className="font-medium text-gray-700">Phone</dt>
+        <dt className="font-medium text-gray-700">WhatsApp number</dt>
         <dd className="text-gray-900">{client.phone ?? "—"}</dd>
+        <dt className="font-medium text-gray-700">Calling number</dt>
+        <dd className="text-gray-900">{client.callingNumber ?? "—"}</dd>
         <dt className="font-medium text-gray-700">Email</dt>
         <dd className="text-gray-900">{client.email ?? "—"}</dd>
         <dt className="font-medium text-gray-700">Address</dt>

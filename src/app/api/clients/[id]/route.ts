@@ -8,6 +8,7 @@ type ClientRow = {
   agency_id: string;
   full_name: string;
   phone: string | null;
+  calling_number: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
@@ -23,6 +24,7 @@ function toClient(r: ClientRow) {
     agencyId: r.agency_id,
     fullName: r.full_name,
     phone: r.phone,
+    callingNumber: r.calling_number,
     email: r.email,
     address: r.address,
     notes: r.notes,
@@ -54,7 +56,7 @@ export async function GET(
 
   const row = await db
     .prepare(
-      `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+      `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
        FROM clients WHERE id = ? AND agency_id = ?`
     )
     .bind(id, result.agency_id)
@@ -82,6 +84,7 @@ export async function PATCH(
   let body: {
     fullName?: string;
     phone?: string;
+    callingNumber?: string | null;
     email?: string;
     address?: string;
     notes?: string;
@@ -102,7 +105,7 @@ export async function PATCH(
 
   const existing = await db
     .prepare(
-      `SELECT id, agency_id, full_name, phone, email, address, notes, household_id
+      `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id
        FROM clients WHERE id = ? AND agency_id = ?`
     )
     .bind(clientId, result.agency_id)
@@ -144,6 +147,17 @@ export async function PATCH(
     bindValues.push(v);
     metadata.phone = v;
   }
+  if (body.callingNumber !== undefined) {
+    const v =
+      body.callingNumber === null || body.callingNumber === ""
+        ? null
+        : typeof body.callingNumber === "string"
+          ? body.callingNumber.trim() || null
+          : null;
+    updates.push("calling_number = ?");
+    bindValues.push(v);
+    metadata.callingNumber = v;
+  }
   if (body.email !== undefined) {
     const v = typeof body.email === "string" ? body.email.trim() || null : null;
     updates.push("email = ?");
@@ -177,7 +191,7 @@ export async function PATCH(
   if (updates.length === 0) {
     const row = await db
       .prepare(
-        `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+        `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
          FROM clients WHERE id = ?`
       )
       .bind(clientId)
@@ -204,7 +218,7 @@ export async function PATCH(
 
   const row = await db
     .prepare(
-      `SELECT id, agency_id, full_name, phone, email, address, notes, household_id, created_by, created_at, updated_at
+      `SELECT id, agency_id, full_name, phone, calling_number, email, address, notes, household_id, created_by, created_at, updated_at
        FROM clients WHERE id = ?`
     )
     .bind(clientId)

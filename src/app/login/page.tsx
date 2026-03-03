@@ -93,7 +93,7 @@ function LoginForm() {
         {step === "number" && (
           <form onSubmit={handleRequestOtp} className="space-y-4">
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              WhatsApp number (E.164)
+              WhatsApp number
             </label>
             <input
               id="phone"
@@ -103,7 +103,7 @@ function LoginForm() {
               placeholder="+919876543210"
               required
               autoComplete="tel"
-              className="block w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="block w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <button
               type="submit"
@@ -133,7 +133,7 @@ function LoginForm() {
               placeholder="000000"
               required
               autoComplete="one-time-code"
-              className="block w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="block w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <div className="flex gap-2 flex-wrap">
               <button

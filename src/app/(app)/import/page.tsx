@@ -11,7 +11,7 @@ type RawRow = Record<string, string | number | undefined>;
 
 const TARGET_FIELDS = [
   { key: "clientFullName", label: "Client name", required: true },
-  { key: "phone", label: "Phone", required: false },
+  { key: "phone", label: "WhatsApp number", required: false },
   { key: "email", label: "Email", required: false },
   { key: "insurerName", label: "Insurer name", required: true },
   { key: "insuranceType", label: "Insurance type", required: true },

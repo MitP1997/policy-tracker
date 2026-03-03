@@ -16,6 +16,13 @@
     @apply m-0 font-sans leading-normal text-gray-900 bg-white;
   }
 
+  /* Force light-mode appearance for form controls so they match page in light mode */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    @apply bg-white text-gray-900;
+  }
+
   code {
     @apply font-mono text-[0.95em];
   }

@@ -150,7 +150,7 @@ export default function SettingsUsersPage() {
               />
             </div>
             <div>
-              <label htmlFor="add-phone" className="block text-sm font-medium text-gray-700 mb-1">Phone (E.164)</label>
+              <label htmlFor="add-phone" className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
               <input
                 id="add-phone"
                 type="tel"
@@ -197,7 +197,7 @@ export default function SettingsUsersPage() {
           <thead>
             <tr className="bg-gray-50">
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">Name</th>
-              <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">Phone</th>
+              <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">WhatsApp number</th>
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">Role</th>
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">Status</th>
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">Last login</th>

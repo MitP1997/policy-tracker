@@ -11,6 +11,7 @@ type Client = {
   agencyId: string;
   fullName: string;
   phone: string | null;
+  callingNumber: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
@@ -129,8 +130,8 @@ export default function ClientsPage() {
           type="search"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search by name, phone, email"
-          className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          placeholder="Search by name, WhatsApp number, email"
+          className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
         <button
           type="submit"
@@ -157,7 +158,7 @@ export default function ClientsPage() {
                 Name
               </th>
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">
-                Phone
+                WhatsApp number
               </th>
               <th className="text-left py-3 px-3 text-sm font-medium text-gray-900 border-b border-gray-200">
                 Email

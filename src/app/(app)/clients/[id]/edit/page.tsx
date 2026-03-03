@@ -9,6 +9,7 @@ type Client = {
   agencyId: string;
   fullName: string;
   phone: string | null;
+  callingNumber: string | null;
   email: string | null;
   address: string | null;
   notes: string | null;
@@ -33,6 +34,8 @@ export default function EditClientPage() {
   const [households, setHouseholds] = useState<Household[]>([]);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [callingNumber, setCallingNumber] = useState("");
+  const [callingSameAsWhatsApp, setCallingSameAsWhatsApp] = useState(true);
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -60,6 +63,10 @@ export default function EditClientPage() {
       setClient(data);
       setFullName(data.fullName);
       setPhone(data.phone ?? "");
+      const ph = data.phone ?? "";
+      const cn = data.callingNumber ?? ph;
+      setCallingNumber(cn);
+      setCallingSameAsWhatsApp(ph === cn || !cn);
       setEmail(data.email ?? "");
       setAddress(data.address ?? "");
       setNotes(data.notes ?? "");
@@ -98,6 +105,7 @@ export default function EditClientPage() {
       const body: {
         fullName?: string;
         phone?: string | null;
+        callingNumber?: string | null;
         email?: string | null;
         address?: string | null;
         notes?: string | null;
@@ -105,6 +113,9 @@ export default function EditClientPage() {
       } = {
         fullName: fullName.trim(),
         phone: phone.trim() || null,
+        callingNumber: callingSameAsWhatsApp
+          ? (phone.trim() || null)
+          : (callingNumber.trim() || null),
         email: email.trim() || null,
         address: address.trim() || null,
         notes: notes.trim() || null,
@@ -184,7 +195,7 @@ export default function EditClientPage() {
           />
         </div>
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
           <input
             id="phone"
             type="tel"
@@ -192,6 +203,34 @@ export default function EditClientPage() {
             onChange={(e) => setPhone(e.target.value)}
             className={fieldClass}
           />
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              id="callingSameAsWhatsApp"
+              type="checkbox"
+              checked={callingSameAsWhatsApp}
+              onChange={(e) => setCallingSameAsWhatsApp(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="callingSameAsWhatsApp" className="text-sm font-medium text-gray-700">
+              Same as WhatsApp number
+            </label>
+          </div>
+          {!callingSameAsWhatsApp && (
+            <div>
+              <label htmlFor="callingNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                Calling number
+              </label>
+              <input
+                id="callingNumber"
+                type="tel"
+                value={callingNumber}
+                onChange={(e) => setCallingNumber(e.target.value)}
+                className={fieldClass}
+              />
+            </div>
+          )}
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
