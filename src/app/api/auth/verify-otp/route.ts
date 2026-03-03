@@ -1,5 +1,6 @@
+import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { jsonBody, jsonError } from "@/lib/api/response";
+import { jsonError } from "@/lib/api/response";
 import { isValidE164, normalizeE164 } from "@/lib/auth/constants";
 import {
   createAccessToken,
@@ -115,23 +116,25 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError("Auth configuration error", "config", 503);
   }
 
-  const headers = new Headers();
-  headers.set(
-    "Set-Cookie",
-    `${ACCESS_TOKEN_COOKIE}=${accessToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=900${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
+  const res = NextResponse.json(
+    { user_id: userId, agency_id: agencyId, role, name },
+    { status: 200 }
   );
-  headers.set(
-    "Set-Cookie",
-    `${REFRESH_TOKEN_COOKIE}=${refreshToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800${process.env.NODE_ENV === "production" ? "; Secure" : ""}`
-  );
+  const isProduction = process.env.NODE_ENV === "production";
+  res.cookies.set(ACCESS_TOKEN_COOKIE, accessToken, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 900,
+    secure: isProduction,
+  });
+  res.cookies.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 604800,
+    secure: isProduction,
+  });
 
-  return jsonBody(
-    {
-      user_id: userId,
-      agency_id: agencyId,
-      role,
-      name
-    },
-    { status: 200, headers }
-  );
+  return res;
 }

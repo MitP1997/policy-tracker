@@ -55,6 +55,7 @@ function LoginForm() {
     try {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ whatsapp_number: whatsappNumber, code }),
       });
@@ -65,6 +66,8 @@ function LoginForm() {
       }
       router.push(from);
       router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

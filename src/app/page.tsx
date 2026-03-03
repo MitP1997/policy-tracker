@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
+import { getSession } from "@/lib/auth/session";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getSession();
   return (
     <main className="max-w-2xl mx-auto px-5 py-12">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-semibold text-primary">Graazo</h1>
-        <LogoutButton />
+        {session ? (
+          <LogoutButton />
+        ) : (
+          <Link
+            href="/login"
+            className="min-h-[44px] px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            Login
+          </Link>
+        )}
       </header>
       <p className="text-gray-600 mb-6">
         Insurance policy tracking for agency staff. Start the dev server with{" "}
